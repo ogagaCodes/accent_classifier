@@ -1,0 +1,37 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Video Accent Analyzer
+
+Globals:
+  Function:
+    Timeout: 30        # adjust as needed
+    Runtime: python3.10
+    MemorySize: 1024
+
+Resources:
+  AccentApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: index.handler      # your Mangum handler
+      Events:
+        ApiRoot:
+          Type: Api
+          Properties:
+            Path: /{proxy+}
+            Method: ANY
+
+Outputs:
+  ApiUrl:
+    Description: "Base URL for API"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+
+Metadata:
+  BuildProperties:
+    PipInstallerArgs:
+      - --no-cache-dir
+      - --timeout
+      - "120"
+
+Layers:
+      - arn:aws:lambda:eu-north-1:320278177667:layer:accentAnalyzerLayer:1
